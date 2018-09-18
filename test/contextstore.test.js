@@ -3,7 +3,6 @@
 const Koa = require('koa');
 const request = require('supertest');
 const should = require('should');
-const mm = require('mm');
 const session = require('..');
 const ContextStore = require('./context_store');
 
@@ -696,29 +695,6 @@ describe('Koa Session External Context Store', () => {
       });
     });
   });
-
-  describe('ctx.session', () => {
-    after(mm.restore);
-
-    it('should be mocked', done => {
-      const app = App();
-
-      app.use(async function(ctx) {
-        ctx.body = ctx.session;
-      });
-
-      mm(app.context, 'session', {
-        foo: 'bar',
-      });
-
-      request(app.listen())
-      .get('/')
-      .expect({
-        foo: 'bar',
-      })
-      .expect(200, done);
-    });
-  });
 });
 
 function App(options) {
@@ -729,6 +705,6 @@ function App(options) {
   options.genid = () => {
     return Date.now() + '_suffix';
   };
-  app.use(session(options, app));
+  app.use(session(options));
   return app;
 }

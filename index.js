@@ -1,6 +1,6 @@
 'use strict';
 
-const debug = require('debug')('koa-session');
+const debug = require('debug')('koa-session-mowa');
 const ContextSession = require('./lib/context');
 const util = require('./lib/util');
 const assert = require('assert');
@@ -8,7 +8,6 @@ const uid = require('uid-safe');
 const is = require('is-type-of');
 
 const CONTEXT_SESSION = Symbol('context#contextSession');
-const _CONTEXT_SESSION = Symbol('context#_contextSession');
 
 /**
  * Initialize session middleware with `opts`:
@@ -17,25 +16,20 @@ const _CONTEXT_SESSION = Symbol('context#_contextSession');
  * - all other options are passed as cookie options
  *
  * @param {Object} [opts]
- * @param {Application} app, koa application instance
  * @api public
  */
 
-module.exports = function(opts, app) {
-  // session(app[, opts])
-  if (opts && typeof opts.use === 'function') {
-    [ app, opts ] = [ opts, app ];
-  }
-  // app required
-  if (!app || typeof app.use !== 'function') {
-    throw new TypeError('app instance required: `session(opts, app)`');
-  }
-
+module.exports = function(opts) {
   opts = formatOpts(opts);
-  extendContext(app.context, opts);
 
   return async function session(ctx, next) {
-    const sess = ctx[CONTEXT_SESSION];
+    extendContext(ctx);
+
+    if (ctx[CONTEXT_SESSION]) {
+      throw new Error('Duplicate session middleware applied.');
+    }
+
+    const sess = ctx[CONTEXT_SESSION] = new ContextSession(ctx, opts);
     if (sess.store) await sess.initFromExternal();
     try {
       await next();
@@ -108,20 +102,12 @@ function formatOpts(opts) {
  * extend context prototype, add session properties
  *
  * @param  {Object} context koa's context prototype
- * @param  {Object} opts session options
  *
  * @api private
  */
 
-function extendContext(context, opts) {
+function extendContext(context) {
   Object.defineProperties(context, {
-    [CONTEXT_SESSION]: {
-      get() {
-        if (this[_CONTEXT_SESSION]) return this[_CONTEXT_SESSION];
-        this[_CONTEXT_SESSION] = new ContextSession(this, opts);
-        return this[_CONTEXT_SESSION];
-      },
-    },
     session: {
       get() {
         return this[CONTEXT_SESSION].get();

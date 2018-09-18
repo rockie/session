@@ -1,8 +1,8 @@
 {
-  "name": "koa-session",
-  "description": "Koa cookie session middleware with external store support",
-  "repository": "koajs/session",
-  "version": "5.9.0",
+  "name": "koa-session-mowa",
+  "description": "Koa cookie session middleware with external store support for mowa framework",
+  "repository": "rockie/session",
+  "version": "5.9.1",
   "keywords": [
     "koa",
     "middleware",
@@ -19,10 +19,10 @@
     "istanbul": "0",
     "koa": "2",
     "mm": "^2.1.0",
-    "mocha": "3",
+    "mocha": "^5.2.0",
     "mz-modules": "^2.0.0",
     "should": "8",
-    "supertest": "2"
+    "supertest": "^3.3.0"
   },
   "license": "MIT",
   "dependencies": {

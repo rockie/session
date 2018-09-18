@@ -3,7 +3,6 @@
 const Koa = require('koa');
 const request = require('supertest');
 const should = require('should');
-const mm = require('mm');
 const session = require('..');
 const store = require('./store');
 const pedding = require('pedding');
@@ -628,29 +627,6 @@ describe('Koa Session External Store', () => {
     });
   });
 
-  describe('ctx.session', () => {
-    after(mm.restore);
-
-    it('should be mocked', done => {
-      const app = App();
-
-      app.use(async function(ctx) {
-        ctx.body = ctx.session;
-      });
-
-      mm(app.context, 'session', {
-        foo: 'bar',
-      });
-
-      request(app.listen())
-      .get('/')
-      .expect({
-        foo: 'bar',
-      })
-      .expect(200, done);
-    });
-  });
-
   describe('when rolling set to true', () => {
     let app;
     before(() => {
@@ -776,6 +752,6 @@ function App(options) {
   app.keys = [ 'a', 'b' ];
   options = options || {};
   options.store = store;
-  app.use(session(options, app));
+  app.use(session(options));
   return app;
 }

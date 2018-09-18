@@ -1,3 +1,12 @@
+5.9.1 / 2018-09-18
+==================
+
+**notes**
+  * forked form koajs/session
+  * defer session accessor definition to support complex routing 
+     * Since app.context is shared among all routes, putting the session accessor under this scope limits the functionality of middleware 
+     * E.g. Some routes don't need session middleware
+     * E.g. Some routes may require different session options
 
 5.9.0 / 2018-08-28
 ==================

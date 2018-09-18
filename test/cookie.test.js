@@ -43,15 +43,6 @@ describe('Koa Session Cookie', () => {
         .expect(500, done);
       });
     });
-
-    describe('when app not set', () => {
-      it('should throw', () => {
-        const app = new Koa();
-        (function() {
-          app.use(session());
-        }).should.throw('app instance required: `session(opts, app)`');
-      });
-    });
   });
 
   describe('when options.signed = false', () => {
@@ -623,35 +614,6 @@ describe('Koa Session Cookie', () => {
     });
   });
 
-  describe('when get session before enter session middleware', () => {
-    it('should work', done => {
-      const app = new Koa();
-
-      app.keys = [ 'a', 'b' ];
-      app.use(async function(ctx, next) {
-        ctx.session.foo = 'hi';
-        await next();
-      });
-      app.use(session({}, app));
-      app.use(async function(ctx) {
-        ctx.body = ctx.session;
-      });
-
-      request(app.callback())
-      .get('/')
-      .expect(200, (err, res) => {
-        should.not.exist(err);
-        const cookies = res.headers['set-cookie'].join(';');
-        cookies.should.containEql('koa:sess=');
-
-        request(app.callback())
-        .get('/')
-        .set('Cookie', cookies)
-        .expect(200, done);
-      });
-    });
-  });
-
   describe('when valid and beforeSave set', () => {
     it('should ignore session when uid changed', done => {
       const app = new Koa();
@@ -800,6 +762,6 @@ describe('Koa Session Cookie', () => {
 function App(options) {
   const app = new Koa();
   app.keys = [ 'a', 'b' ];
-  app.use(session(options, app));
+  app.use(session(options));
   return app;
 }
